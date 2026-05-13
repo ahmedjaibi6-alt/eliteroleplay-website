@@ -1,0 +1,72 @@
+# Elite RP - Security Configuration
+
+# Protect sensitive files
+<FilesMatch "\.(env|md|log|sql|backup)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Protect .env file specifically
+<Files .env>
+    Order allow,deny
+    Deny from all
+</Files>
+
+# Protect setup_db.php
+<Files setup_db.php>
+    Order allow,deny
+    Deny from all
+</Files>
+
+# Protect config files from direct browser access (but allow PHP includes)
+<FilesMatch "^(config|env_loader)\.php$">
+    <IfModule mod_rewrite.c>
+        RewriteEngine On
+        RewriteCond %{REQUEST_URI} (config|env_loader)\.php$ [NC]
+        RewriteRule .* - [F,L]
+    </IfModule>
+</FilesMatch>
+
+# Prevent directory browsing
+Options -Indexes
+
+# Force HTTPS (uncomment when ready)
+# RewriteEngine On
+# RewriteCond %{HTTPS} off
+# RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Security Headers
+<IfModule mod_headers.c>
+    Header set X-Frame-Options "DENY"
+    Header set X-Content-Type-Options "nosniff"
+    Header set X-XSS-Protection "1; mode=block"
+    Header set Referrer-Policy "strict-origin-when-cross-origin"
+    Header set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+</IfModule>
+
+# Prevent access to hidden files
+<FilesMatch "^\.">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Protect admin folder (optional - add IP whitelist)
+# <Directory "/path/to/admin">
+#     Order Deny,Allow
+#     Deny from all
+#     Allow from YOUR_IP_ADDRESS
+
+# SMART LOCKDOWN - CSS/JS Protection
+# Blocks direct browser navigation while allowing legitimate resource loading
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    
+    # Allow if it's being loaded as a stylesheet or script resource
+    RewriteCond %{HTTP:Sec-Fetch-Dest} ^style$ [NC,OR]
+    RewriteCond %{HTTP:Sec-Fetch-Dest} ^script$ [NC]
+    RewriteRule \.(css|js)$ - [L]
+    
+    # Block everything else (direct access, document requests, etc)
+    RewriteRule \.(css|js)$ - [F,L]
+</IfModule>

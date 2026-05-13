@@ -1,0 +1,24 @@
+# Elite Roleplay - Git Ignore File
+# This file prevents sensitive information from being uploaded to GitHub
+
+# Environment variables (CRITICAL: Never share these)
+.env
+.env.local
+.env.*.local
+
+# Database files
+*.sql
+!setup_db.sql
+
+# Testing utilities that might expose connections
+test_db_conn.php
+
+# IDE and System files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+error_log
